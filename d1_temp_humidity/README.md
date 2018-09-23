@@ -8,4 +8,4 @@ Tools -> Boards -> Boards Manager: search for wemos and install esp8266 library.
 
 Select the board: WeMoS D1 R1.
 
-Using Library Manager install the DHT sensor library for ESPx by beegee_tokyo.
+Using Library Manager install the DHT sensor library by Adafruit.
