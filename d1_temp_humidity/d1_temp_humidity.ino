@@ -14,19 +14,8 @@ void setup() {
   Serial.begin(9600);
   Serial.println("DHTxx test!");
   dht.begin();
+  configureWiFi(SSID, NETWORKPASSWORD);
 
-  WiFi.begin(ssid, networkPassword);
-
-  // Connect to the WiFi
-  Serial.print("Connecting");
-  while (WiFi.status() != WL_CONNECTED)
-  {
-    delay(500);
-    Serial.print(".");
-  }
-  Serial.println();
-  Serial.print("Connected, IP address: ");
-  Serial.println(WiFi.localIP());
 }
 
 void loop() {
@@ -94,4 +83,24 @@ void loop() {
      Serial.println("Error in WiFi connection");   
   }
 
+}
+
+void configureWiFi(char *ssid, char *password) {
+  /*
+   * Configure WiFi using SSID and password
+   */
+  Serial.println(ssid);
+  Serial.println(password);
+  WiFi.begin(ssid, password);
+
+  // Connect to the WiFi
+  Serial.print("Connecting");
+  while (WiFi.status() != WL_CONNECTED)
+  {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println();
+  Serial.print("Connected, IP address: ");
+  Serial.println(WiFi.localIP());
 }

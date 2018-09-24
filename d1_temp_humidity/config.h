@@ -1,3 +1,2 @@
-#define ssid "SSID"
-#define networkPassword "password"
-
+#define SSID "ssid"
+#define NETWORKPASSWORD "password"
