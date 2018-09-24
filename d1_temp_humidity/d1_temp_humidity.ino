@@ -53,11 +53,34 @@ void loop() {
   Serial.print(hif);
   Serial.println(" *F");
   
+  sendData(t, h);
+
+}
+
+void configureWiFi(char *ssid, char *password) {
+  /*
+   * Configure WiFi using SSID and password
+   */
+  WiFi.begin(ssid, password);
+
+  // Connect to the WiFi
+  Serial.print("Connecting");
+  while (WiFi.status() != WL_CONNECTED)
+  {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println();
+  Serial.print("Connected, IP address: ");
+  Serial.println(WiFi.localIP());
+}
+
+void sendData(float temperature, float humidity) {
   // JSON
   StaticJsonBuffer<200> jsonBuffer;
   JsonObject& json = jsonBuffer.createObject();
-  json["temperature"] = t;
-  json["humidity"] = h;
+  json["temperature"] = temperature;
+  json["humidity"] = humidity;
   char JSONmessageBuffer[300];
   json.prettyPrintTo(JSONmessageBuffer, sizeof(JSONmessageBuffer));
   Serial.println(JSONmessageBuffer);
@@ -82,25 +105,4 @@ void loop() {
   }else{
      Serial.println("Error in WiFi connection");   
   }
-
-}
-
-void configureWiFi(char *ssid, char *password) {
-  /*
-   * Configure WiFi using SSID and password
-   */
-  Serial.println(ssid);
-  Serial.println(password);
-  WiFi.begin(ssid, password);
-
-  // Connect to the WiFi
-  Serial.print("Connecting");
-  while (WiFi.status() != WL_CONNECTED)
-  {
-    delay(500);
-    Serial.print(".");
-  }
-  Serial.println();
-  Serial.print("Connected, IP address: ");
-  Serial.println(WiFi.localIP());
 }
