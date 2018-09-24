@@ -10,50 +10,43 @@
 
 DHT dht(DHTPIN, DHTTYPE);
 
+struct Data
+{
+  float temperature;
+  float humidity;
+};
+
+struct Data data;
+
 void setup() {
   Serial.begin(9600);
   Serial.println("DHTxx test!");
   dht.begin();
   configureWiFi(SSID, NETWORKPASSWORD);
-
 }
 
 void loop() {
   // Wait a few seconds between measurements.
   delay(10000);
 
-  float h = dht.readHumidity();
+  data.humidity = dht.readHumidity();
   // Read temperature as Celsius (the default)
-  float t = dht.readTemperature();
-  // Read temperature as Fahrenheit (isFahrenheit = true)
-  float f = dht.readTemperature(true);
+  data.temperature = dht.readTemperature();
 
   // Check if any reads failed and exit early (to try again).
-  if (isnan(h) || isnan(t) || isnan(f)) {
+  if (isnan(data.humidity) || isnan(data.temperature)) {
     Serial.println("Failed to read from DHT sensor!");
     return;
   }
 
-  // Compute heat index in Fahrenheit (the default)
-  float hif = dht.computeHeatIndex(f, h);
-  // Compute heat index in Celsius (isFahreheit = false)
-  float hic = dht.computeHeatIndex(t, h, false);
-
   Serial.print("Humidity: ");
-  Serial.print(h);
+  Serial.print(data.humidity);
   Serial.print(" %\t");
   Serial.print("Temperature: ");
-  Serial.print(t);
+  Serial.print(data.temperature);
   Serial.print(" *C ");
-  Serial.print(f);
-  Serial.print(" *F\t");
-  Serial.print("Heat index: ");
-  Serial.print(hic);
-  Serial.print(" *C ");
-  Serial.print(hif);
-  Serial.println(" *F");
   
-  sendData(t, h);
+  sendData(&data);
 
 }
 
@@ -75,12 +68,15 @@ void configureWiFi(char *ssid, char *password) {
   Serial.println(WiFi.localIP());
 }
 
-void sendData(float temperature, float humidity) {
+int sendData(struct Data *data) {
+  /*
+   * Sends values for temperature an humidity
+   */
   // JSON
   StaticJsonBuffer<200> jsonBuffer;
   JsonObject& json = jsonBuffer.createObject();
-  json["temperature"] = temperature;
-  json["humidity"] = humidity;
+  json["temperature"] = data->temperature;
+  json["humidity"] = data->humidity;
   char JSONmessageBuffer[300];
   json.prettyPrintTo(JSONmessageBuffer, sizeof(JSONmessageBuffer));
   Serial.println(JSONmessageBuffer);
