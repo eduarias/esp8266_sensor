@@ -57,6 +57,7 @@ void configureWiFi(char *ssid, char *password) {
   /*
    * Configure WiFi using SSID and password
    */
+  WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
 
   // Connect to the WiFi
