@@ -8,6 +8,9 @@
 #define DHTPIN D4
 #define DHTTYPE DHT22
 
+const String deviceName = "Dormitorio Alberto";
+const String apiUri = "http://192.168.1.44:8080/sensor/data";
+
 DHT dht(DHTPIN, DHTTYPE);
 
 struct Data
@@ -44,7 +47,7 @@ void loop() {
   Serial.print(" %\t");
   Serial.print("Temperature: ");
   Serial.print(data.temperature);
-  Serial.print(" *C ");
+  Serial.println(" *C ");
   
   sendData(&data);
 
@@ -68,32 +71,44 @@ void configureWiFi(char *ssid, char *password) {
   Serial.println(WiFi.localIP());
 }
 
-int sendData(struct Data *data) {
+int sendData(struct Data *sensorData) {
   /*
    * Sends values for temperature an humidity
    */
   // JSON
-  StaticJsonBuffer<200> jsonBuffer;
-  JsonObject& json = jsonBuffer.createObject();
-  json["temperature"] = data->temperature;
-  json["humidity"] = data->humidity;
+  const size_t bufferSize = 2*JSON_OBJECT_SIZE(3);
+  StaticJsonBuffer<bufferSize> jsonBuffer;
+  // DynamicJsonBuffer jsonBuffer(bufferSize);
+  
+  JsonObject &root = jsonBuffer.createObject();
+  
+  JsonObject &data = root.createNestedObject("data");
+  data["temperature"] = sensorData->temperature;
+  data["humidity"] = sensorData->humidity;
+
+  root["device_name"] = deviceName;
+ 
   char JSONmessageBuffer[300];
-  json.prettyPrintTo(JSONmessageBuffer, sizeof(JSONmessageBuffer));
+  root.prettyPrintTo(JSONmessageBuffer, sizeof(JSONmessageBuffer));
+  Serial.println("JSON data:");
   Serial.println(JSONmessageBuffer);
   
-  Serial.printf("Connection status: %d\n", WiFi.status());
-  WiFi.printDiag(Serial);
+  // Serial.printf("Connection status: %d\n", WiFi.status());
+  // WiFi.printDiag(Serial);
   if(WiFi.status()== WL_CONNECTED){   //Check WiFi connection status
+    Serial.println("Sending data ...");
  
     HTTPClient http;    //Declare object of class HTTPClient
  
-    http.begin("http://192.168.1.44:5000/log");      //Specify request destination
+    http.begin(apiUri);      //Specify request destination
     http.addHeader("Content-Type", "application/json");  //Specify content-type header
  
-    int httpCode = http.POST(JSONmessageBuffer);   //Send the request
+    int httpCode = http.PUT(JSONmessageBuffer);   //Send the request
     String payload = http.getString();                  //Get the response payload
- 
+
+    Serial.print("Response code: ");
     Serial.println(httpCode);   //Print HTTP return code
+    Serial.print("Response payload: ");
     Serial.println(payload);    //Print request response payload
  
     http.end();  //Close connection
