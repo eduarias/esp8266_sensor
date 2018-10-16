@@ -104,7 +104,7 @@ int sendData(struct Data *sensorData) {
     http.begin(apiUri);      //Specify request destination
     http.addHeader("Content-Type", "application/json");  //Specify content-type header
  
-    int httpCode = http.PUT(JSONmessageBuffer);   //Send the request
+    int httpCode = http.POST(JSONmessageBuffer);   //Send the request
     String payload = http.getString();                  //Get the response payload
 
     Serial.print("Response code: ");
